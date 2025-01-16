@@ -31,4 +31,19 @@ return {
   {
     'mfussenegger/nvim-jdtls',
   },
+  {
+    'mbbill/undotree',
+    config = function()
+      vim.keymap.set('n', '<leader><F5>', vim.cmd.UndotreeToggle)
+    end,
+  },
+  {
+    'ThePrimeagen/git-worktree.nvim',
+    config = function()
+      require('telescope').load_extension 'git_worktree'
+
+      vim.keymap.set('n', '<leader>st', require('telescope').extensions.git_worktree.git_worktrees, { desc = '[S]earch Git Work[T]ree' })
+      vim.keymap.set('n', '<leader>cw', require('telescope').extensions.git_worktree.create_git_worktree, { desc = '[C]reate Git [W]orktree' })
+    end,
+  },
 }
