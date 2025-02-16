@@ -677,6 +677,30 @@ require('lazy').setup({
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
             require('lspconfig')[server_name].setup(server)
           end,
+          ['denols'] = function()
+            require('lspconfig').denols.setup {
+              root_dir = require('lspconfig').util.root_pattern('deno.json', 'deno.jsonc'),
+            }
+          end,
+          ['ts_ls'] = function()
+            require('lspconfig').ts_ls.setup {
+              root_dir = function(fname)
+                local util = require('lspconfig').util
+                -- Find nearest package.json
+                local ts_root = util.root_pattern 'package.json'(fname)
+                -- Check if the same directory or any parent has deno.json or deno.jsonc
+                local deno_root = util.root_pattern('deno.json', 'deno.jsonc')(fname)
+
+                -- If we found a Deno project, don't use tsserver
+                if deno_root and ts_root and deno_root == ts_root then
+                  return nil
+                end
+
+                return ts_root
+              end,
+              single_file_support = false,
+            }
+          end,
         },
       }
     end,
