@@ -104,7 +104,7 @@ vim.g.have_nerd_font = true
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -165,6 +165,14 @@ vim.wo.wrap = false
 
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
+--
+-- Remap basic keys match home row
+vim.keymap.set({ 'n', 'v' }, 'h', '')
+
+vim.keymap.set({ 'n', 'v' }, 'j', 'h')
+vim.keymap.set({ 'n', 'v' }, 'k', 'j')
+vim.keymap.set({ 'n', 'v' }, 'l', 'k')
+vim.keymap.set({ 'n', 'v' }, ';', 'l')
 
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
@@ -172,6 +180,8 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+-- vim.keymap.set('n', '<leader>}', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic' })
+-- vim.keymap.set('n', '<leader>{', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -191,14 +201,19 @@ vim.keymap.set('n', '<down>', '<cmd>echo "Use j to move!!"<CR>')
 vim.keymap.set('n', '<C-s>', '<cmd>write<cr>', { desc = 'Save buffer' })
 vim.keymap.set('i', '<C-s>', '<cmd>write<cr>', { desc = 'Save buffer' })
 
+-- Remove escape on Ctr+Z
+vim.keymap.set('n', '<C-z>', '<cmd>echo "Use :q to exit"<cr>')
+vim.keymap.set('i', '<C-z>', '<cmd>echo "Use :q to exit"<cr>')
+vim.keymap.set('v', '<C-z>', '<cmd>echo "Use :q to exit"<cr>')
+
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
-vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
-vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
-vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set('n', '<leader>j', '<C-w>h', { desc = 'Move focus to the left window' }) -- j → left
+vim.keymap.set('n', '<leader>k', '<C-w>j', { desc = 'Move focus to the lower window' }) -- k → down
+vim.keymap.set('n', '<leader>l', '<C-w>k', { desc = 'Move focus to the upper window' }) -- l → up
+vim.keymap.set('n', '<leader>;', '<C-w>l', { desc = 'Move focus to the right window' }) -- ; → right
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -604,11 +619,28 @@ require('lazy').setup({
 
       -- Change diagnostic symbols in the sign column (gutter)
       if vim.g.have_nerd_font then
-        local signs = { Error = '', Warn = '', Hint = '', Info = '' }
-        for type, icon in pairs(signs) do
-          local hl = 'DiagnosticSign' .. type
-          vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-        end
+        local hl = 'DiagnosticSign'
+
+        local signs_text = {
+          [vim.diagnostic.severity.ERROR] = '',
+          [vim.diagnostic.severity.WARN] = '',
+          [vim.diagnostic.severity.HINT] = '',
+          [vim.diagnostic.severity.INFO] = '',
+        }
+
+        local signs_hl = {
+          [vim.diagnostic.severity.ERROR] = hl,
+          [vim.diagnostic.severity.WARN] = hl,
+          [vim.diagnostic.severity.HINT] = hl,
+          [vim.diagnostic.severity.INFO] = hl,
+        }
+
+        vim.diagnostic.config {
+          signs = {
+            text = signs_text,
+            numhl = signs_hl,
+          },
+        }
       end
 
       -- LSP servers and clients are able to communicate to each other what features they support.
@@ -628,13 +660,17 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
         gopls = {},
         pyright = {},
         rust_analyzer = {},
         prismals = {},
-        tailwindcss = {},
+        -- tailwindcss = {},
         bashls = {},
+        html = {
+          filetypes = { 'html', 'templ', 'jsx', 'tsx' },
+        },
+        clangd = {},
+        sqlls = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
@@ -650,6 +686,9 @@ require('lazy').setup({
           },
         },
       }
+
+      -- Setup fish lsp
+      require('lspconfig').fish_lsp.setup {}
 
       -- Ensure the servers and tools above are installed
       --  To check the current status of installed tools and/or manually install
@@ -698,7 +737,7 @@ require('lazy').setup({
 
                 return ts_root
               end,
-              single_file_support = false,
+              single_file_support = true,
             }
           end,
         },
@@ -883,14 +922,17 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'catppuccin/nvim',
+    'rose-pine/neovim',
     dependencies = 'rktjmp/lush.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
-    init = function()
+    opts = {
+      variant = 'moon',
+    },
+    config = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'catppuccin'
+      vim.cmd.colorscheme 'rose-pine'
 
       -- You can configure highlights by doing something like:
       -- vim.cmd.hi 'Comment gui=none'
@@ -939,7 +981,9 @@ require('lazy').setup({
   },
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
-    dependencies = { 'nvim-treesitter/nvim-treesitter-textobjects' },
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter-textobjects',
+    },
     build = ':TSUpdate',
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
@@ -1038,6 +1082,12 @@ require('lazy').setup({
     --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
     --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
+  {
+    'nvim-treesitter/nvim-treesitter-context',
+    opts = {
+      max_lines = 5,
+    },
+  },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
@@ -1087,5 +1137,19 @@ require('lazy').setup({
   },
 })
 
+------------------
+------MACROS------
+------------------
+local esc = vim.api.nvim_replace_termcodes('<Esc>', true, true, true)
+
+vim.api.nvim_create_augroup('JSMacro', { clear = true })
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'JSMacro',
+  pattern = { 'javascript', 'typescript' },
+  callback = function()
+    vim.fn.setreg('l', 'yoconsole.log("' .. esc .. 'pa: ", ' .. esc .. 'pa);' .. esc .. '0')
+  end,
+})
+
 -- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+--vim: ts=2 sts=2 sw=2 et

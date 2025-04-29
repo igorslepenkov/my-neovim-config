@@ -21,6 +21,11 @@ return {
       window = {
         mappings = {
           ['\\'] = 'close_window',
+          ['h'] = 'noop',
+          ['j'] = 'noop',
+          ['l'] = 'noop',
+          [';'] = 'noop',
+          ['k'] = 'noop',
         },
       },
     },
