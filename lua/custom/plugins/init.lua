@@ -243,4 +243,40 @@ return {
       }
     end,
   },
+  {
+    'olimorris/codecompanion.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-treesitter/nvim-treesitter',
+    },
+    opts = {
+      opts = {
+        log_level = 'DEBUG',
+      },
+      adapters = {
+        http = {
+          ai_mediator = function()
+            return require('codecompanion.adapters').extend('openai_compatible', {
+              name = 'ai_mediator',
+              formatted_name = 'AI Mediator',
+              env = {
+                url = 'https://api.ai-mediator.ru',
+                chat_url = '/v1/chat/completions',
+              },
+              schema = {
+                model = {
+                  default = 'gpt-5',
+                },
+              },
+            })
+          end,
+        },
+      },
+      strategies = {
+        agent = { adapter = 'ai_mediator' },
+        chat = { adapter = 'ai_mediator' },
+        inline = { adapter = 'ai_mediator' },
+      },
+    },
+  },
 }
