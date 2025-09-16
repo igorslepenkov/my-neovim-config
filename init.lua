@@ -517,6 +517,7 @@ require('lazy').setup({
       {
         '<leader>f',
         function()
+          print 'Running formatter...' -- Add this
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
         mode = '',
@@ -525,7 +526,7 @@ require('lazy').setup({
       {
         '<leader>lf',
         function()
-          require('conform').list_formatters(0)
+          require('conform').list_formatters()
         end,
         mode = '',
         desc = '[L]ist [F]ormatters',
