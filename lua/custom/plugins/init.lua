@@ -249,23 +249,40 @@ return {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
     },
+    keys = {
+      {
+        '<C-a>',
+        '<cmd>CodeCompanionActions<CR>',
+        desc = 'Open the action palette',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<Leader>a',
+        '<cmd>CodeCompanionChat Toggle<CR>',
+        desc = 'Toggle a chat buffer',
+        mode = { 'n', 'v' },
+      },
+      {
+        '<LocalLeader>a',
+        '<cmd>CodeCompanionChat Add<CR>',
+        desc = 'Add code to a chat buffer',
+        mode = { 'v' },
+      },
+    },
+    init = function()
+      vim.cmd [[cab cc CodeCompanion]]
+    end,
     opts = {
       opts = {
         log_level = 'DEBUG',
       },
       adapters = {
         http = {
-          ai_mediator = function()
-            return require('codecompanion.adapters').extend('openai_compatible', {
-              name = 'ai_mediator',
-              formatted_name = 'AI Mediator',
-              env = {
-                url = 'https://api.ai-mediator.ru',
-                chat_url = '/v1/chat/completions',
-              },
+          deepseek = function()
+            return require('codecompanion.adapters').extend('deepseek', {
               schema = {
                 model = {
-                  default = 'gpt-5',
+                  default = 'deepseek-chat',
                 },
               },
             })
@@ -273,9 +290,9 @@ return {
         },
       },
       strategies = {
-        agent = { adapter = 'ai_mediator' },
-        chat = { adapter = 'ai_mediator' },
-        inline = { adapter = 'ai_mediator' },
+        agent = { adapter = 'deepseek' },
+        chat = { adapter = 'deepseek' },
+        inline = { adapter = 'deepseek' },
       },
     },
   },
