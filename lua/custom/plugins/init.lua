@@ -249,6 +249,7 @@ return {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
     },
+    lazy = false,
     keys = {
       {
         '<C-a>',
@@ -274,10 +275,143 @@ return {
     end,
     opts = {
       opts = {
-        log_level = 'DEBUG',
+        log_level = 'TRACE',
       },
       adapters = {
         http = {
+          searxng = function()
+            local fmt = string.format
+            local log = require 'codecompanion.utils.log'
+
+            ---@class CodeCompanion.HTTPAdapter
+            return {
+              name = 'searxng',
+              formatted_name = 'SearxNG',
+              roles = {
+                llm = 'assistant',
+                user = 'user',
+              },
+              opts = {},
+              url = '${url}/search',
+              env = {
+                url = 'SEARXNG_URL',
+              },
+              headers = {
+                ['Content-Type'] = 'application/json',
+                ['Accept'] = 'application/json',
+              },
+              schema = {
+                timeout = {
+                  default = 10000,
+                  description = 'Request timeout in milliseconds',
+                },
+                categories = {
+                  default = 'general',
+                  description = 'Search categories (general, news, science, etc.)',
+                },
+                language = {
+                  default = 'en',
+                  description = 'Search language',
+                },
+                model = {
+                  default = 'searxng',
+                },
+              },
+              handlers = {},
+              methods = {
+                tools = {
+                  search_web = {
+                    ---Setup the adapter for the search web tool
+                    ---@param self CodeCompanion.HTTPAdapter
+                    ---@param opts table Tool options
+                    ---@param data table The data from the LLM's tool call
+                    ---@return nil
+                    setup = function(self, opts, data)
+                      opts = opts or {}
+                      local base_url = self.url
+
+                      local utils = require 'codecompanion.utils.adapters'
+
+                      utils.get_env_vars(self)
+
+                      if self.env_replaced and self.env_replaced.url then
+                        base_url = self.env_replaced.url
+                      end
+
+                      base_url = base_url .. '/search'
+
+                      local query_params = {
+                        q = data.query,
+                        format = 'json',
+                        categories = opts.categories or self.schema.categories.default,
+                        language = opts.language or self.schema.language.default,
+                        pageno = opts.page or 1,
+                      }
+
+                      local url_with_params = base_url
+                      local first_param = true
+
+                      for key, value in pairs(query_params) do
+                        if first_param then
+                          url_with_params = url_with_params .. '?' .. key .. '=' .. tostring(value)
+                          first_param = false
+                        else
+                          url_with_params = url_with_params .. '&' .. key .. '=' .. tostring(value)
+                        end
+                      end
+
+                      self.url = url_with_params
+                    end,
+
+                    ---Process the output from the search web tool
+                    ---@param self CodeCompanion.HTTPAdapter
+                    ---@param data table The data returned from the search
+                    ---@return table{status: string, content: string}|nil
+                    callback = function(self, data)
+                      local ok, body = pcall(vim.json.decode, data.body)
+
+                      if not ok then
+                        return {
+                          status = 'error',
+                          content = 'Could not parse JSON response from SearxNG',
+                        }
+                      end
+
+                      if data.status ~= 200 then
+                        return {
+                          status = 'error',
+                          content = fmt('Error %s - %s', data.status, body.message or 'Unknown error'),
+                        }
+                      end
+
+                      if body.results == nil or #body.results == 0 then
+                        return {
+                          status = 'error',
+                          content = 'No search results found',
+                        }
+                      end
+
+                      local output = {}
+                      for _, result in ipairs(body.results) do
+                        table.insert(output, {
+                          content = result.content or '',
+                          title = result.title or '',
+                          url = result.url or '',
+                          engine = result.engine or 'unknown',
+                          score = result.score or 0,
+                        })
+                      end
+
+                      return {
+                        status = 'success',
+                        content = output,
+                      }
+                    end,
+                  },
+                },
+              },
+            }
+          end,
           deepseek = function()
             return require('codecompanion.adapters').extend('deepseek', {
               schema = {
@@ -291,7 +425,16 @@ return {
       },
       strategies = {
         agent = { adapter = 'deepseek' },
-        chat = { adapter = 'deepseek' },
+        chat = {
+          adapter = 'deepseek',
+          tools = {
+            search_web = {
+              opts = {
+                adapter = 'searxng',
+              },
+            },
+          },
+        },
         inline = { adapter = 'deepseek' },
       },
     },

@@ -707,6 +707,29 @@ require('lazy').setup({
 
       -- You can configure highlights by doing something like:
       -- vim.cmd.hi 'Comment gui=none'
+      local palette = require 'rose-pine.palette'
+
+      vim.cmd.hi('Comment guifg=' .. palette.iris .. ' gui=italic')
+      vim.cmd.hi('Keyword guifg=' .. palette.muted .. ' guibg=none gui=none')
+      vim.cmd.hi('@keyword.import guifg=' .. palette.muted .. ' guibg=none gui=none')
+      vim.cmd.hi('@function guifg=' .. palette.pine)
+      vim.cmd.hi('@variable.member guifg=' .. palette.text)
+      vim.cmd.hi('@property guifg=' .. palette.text)
+      vim.cmd.hi('@function.method.call guifg=' .. palette.text)
+      vim.cmd.hi('@function.method guifg=' .. palette.text)
+      vim.cmd.hi('@variable guifg=' .. palette.text)
+      vim.cmd.hi('@variable.parameter guifg=' .. palette.text)
+      vim.cmd.hi('@parameter guifg=' .. palette.text)
+      vim.cmd.hi('@constant guifg=' .. palette.love .. ' gui=italic')
+      vim.cmd.hi('@variable.builtin guifg=' .. palette.text)
+
+      vim.cmd.hi('@punctuation.bracket guifg=' .. palette.subtle)
+      vim.cmd.hi('@punctuation.special guifg=' .. palette.subtle)
+      vim.cmd.hi('@punctuation.delimiter guifg=' .. palette.subtle)
+      vim.cmd.hi('@operator guifg=' .. palette.iris)
+      vim.cmd.hi('@string.escape guifg=' .. palette.muted)
+
+      vim.cmd.hi 'DiagnosticUnnecessary guifg=none guibg=none'
     end,
   },
 
@@ -770,7 +793,22 @@ require('lazy').setup({
       }
     end,
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = {
+        'bash',
+        'c',
+        'diff',
+        'html',
+        'lua',
+        'luadoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'vim',
+        'vimdoc',
+        'typescript',
+        'typescriptreact',
+        'rust',
+      },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
@@ -778,7 +816,7 @@ require('lazy').setup({
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+        additional_vim_regex_highlighting = false,
       },
       indent = { enable = true, disable = { 'ruby' } },
       textobjects = {
@@ -939,6 +977,15 @@ vim.api.nvim_create_autocmd('FileType', {
 vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
   pattern = '*.log',
   command = 'set filetype=log | set wrap',
+})
+
+-- To prioritize tree-sitter highlights in TS
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'typescript',
+  callback = function()
+    vim.bo.syntax = ''
+    vim.cmd 'TSBufEnable highlight'
+  end,
 })
 
 -- The line beneath this is called `modeline`. See `:help modeline`

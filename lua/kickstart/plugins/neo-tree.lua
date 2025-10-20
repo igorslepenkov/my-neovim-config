@@ -16,7 +16,7 @@ return {
   opts = {
     default_component_configs = {
       indent = {
-        indent_size = 0.5,
+        indent_size = 1,
         padding = 0,
       },
     },
