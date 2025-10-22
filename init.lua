@@ -709,7 +709,7 @@ require('lazy').setup({
       -- vim.cmd.hi 'Comment gui=none'
       local palette = require 'rose-pine.palette'
 
-      vim.cmd.hi('Comment guifg=' .. palette.iris .. ' gui=italic')
+      vim.cmd.hi('Comment guifg=' .. palette.iris)
       vim.cmd.hi('Keyword guifg=' .. palette.muted .. ' guibg=none gui=none')
       vim.cmd.hi('@keyword.import guifg=' .. palette.muted .. ' guibg=none gui=none')
       vim.cmd.hi('@function guifg=' .. palette.pine)
@@ -717,11 +717,11 @@ require('lazy').setup({
       vim.cmd.hi('@property guifg=' .. palette.text)
       vim.cmd.hi('@function.method.call guifg=' .. palette.text)
       vim.cmd.hi('@function.method guifg=' .. palette.text)
-      vim.cmd.hi('@variable guifg=' .. palette.text)
+      vim.cmd.hi('@variable guifg=' .. palette.text .. ' gui=none')
       vim.cmd.hi('@variable.parameter guifg=' .. palette.text)
       vim.cmd.hi('@parameter guifg=' .. palette.text)
       vim.cmd.hi('@constant guifg=' .. palette.love .. ' gui=italic')
-      vim.cmd.hi('@variable.builtin guifg=' .. palette.text)
+      vim.cmd.hi('@variable.builtin guifg=' .. palette.text .. ' gui=italic')
 
       vim.cmd.hi('@punctuation.bracket guifg=' .. palette.subtle)
       vim.cmd.hi('@punctuation.special guifg=' .. palette.subtle)

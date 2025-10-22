@@ -206,7 +206,7 @@ return {
       }
 
       -- Setup fish lsp
-      require('lspconfig').fish_lsp.setup {}
+      vim.lsp.config('fish_lsp', {})
 
       require('mason').setup()
 
@@ -215,33 +215,47 @@ return {
         ensure_installed = vim.tbl_keys(servers),
       }
 
-      local lsp = require 'lspconfig'
-
       for server_name, server_opts in pairs(servers) do
-        lsp[server_name].setup(vim.tbl_deep_extend('force', {
-          capabilities = capabilities,
-        }, server_opts))
+        vim.lsp.config(
+          server_name,
+          vim.tbl_deep_extend('force', {
+            capabilities = capabilities,
+          }, server_opts)
+        )
+        vim.lsp.enable(server_name)
       end
 
-      lsp.denols.setup {
-        root_dir = require('lspconfig').util.root_pattern('deno.json', 'deno.jsonc'),
-      }
-
-      lsp.ts_ls.setup {
-        root_dir = function(fname)
-          local util = require('lspconfig').util
+      vim.lsp.config('denols', {
+        root_dir = function(fname, on_dir)
+          local util = require 'lspconfig.util'
           local ts_root = util.root_pattern 'package.json'(fname)
           local deno_root = util.root_pattern('deno.json', 'deno.jsonc')(fname)
 
-          if deno_root and ts_root and deno_root == ts_root then
-            return nil
+          if deno_root and not ts_root then
+            on_dir(deno_root)
           end
 
-          return ts_root
+          return false
         end,
-        single_file_support = true,
-      }
+        workspace_required = true,
+      })
+
+      vim.lsp.enable 'denols'
+
+      vim.lsp.config('ts_ls', {
+        root_dir = function(fname, on_dir)
+          local util = require('lspconfig').util
+          local ts_root = util.root_pattern 'package.json'(fname)
+
+          if ts_root then
+            on_dir(ts_root)
+          end
+        end,
+        workspace_required = false,
+      })
     end,
+
+    vim.lsp.enable 'ts_ls',
   },
   {
     'olimorris/codecompanion.nvim',
