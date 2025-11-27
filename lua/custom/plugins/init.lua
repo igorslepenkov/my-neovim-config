@@ -15,10 +15,10 @@ return {
   {
     'christoomey/vim-tmux-navigator',
     keys = {
-      { '<c-j>', '<cmd><C-U>TmuxNavigateLeft<cr>' },
-      { '<c-k>', '<cmd><C-U>TmuxNavigateDown<cr>' },
-      { '<c-l>', '<cmd><C-U>TmuxNavigateUp<cr>' },
-      { '<c-;>', '<cmd><C-U>TmuxNavigateRight<cr>' },
+      { '<c-j>',  '<cmd><C-U>TmuxNavigateLeft<cr>' },
+      { '<c-k>',  '<cmd><C-U>TmuxNavigateDown<cr>' },
+      { '<c-l>',  '<cmd><C-U>TmuxNavigateUp<cr>' },
+      { '<c-;>',  '<cmd><C-U>TmuxNavigateRight<cr>' },
       { '<c-\\>', '<cmd><C-U>TmuxNavigatePrevious<cr>' },
     },
   },
@@ -33,7 +33,7 @@ return {
     dependencies = 'kevinhwang91/promise-async',
     config = function()
       vim.o.foldcolumn = '1' -- '0' is not bad
-      vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
+      vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
       vim.o.foldlevelstart = 99
       vim.o.foldenable = true
 
@@ -50,7 +50,7 @@ return {
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       'hrsh7th/cmp-nvim-lsp',
     },
@@ -188,6 +188,7 @@ return {
           filetypes = { 'html', 'templ', 'typescriptreact', 'javascriptreact' },
         },
         clangd = {},
+        gopls = {},
         sqlls = {},
         lua_ls = {
           -- cmd = {...},
@@ -228,7 +229,7 @@ return {
       vim.lsp.config('denols', {
         root_dir = function(fname, on_dir)
           local util = require 'lspconfig.util'
-          local ts_root = util.root_pattern 'package.json'(fname)
+          local ts_root = util.root_pattern 'package.json' (fname)
           local deno_root = util.root_pattern('deno.json', 'deno.jsonc')(fname)
 
           if deno_root and not ts_root then
@@ -245,10 +246,12 @@ return {
       vim.lsp.config('ts_ls', {
         root_dir = function(fname, on_dir)
           local util = require('lspconfig').util
-          local ts_root = util.root_pattern 'package.json'(fname)
+          local ts_root = util.root_pattern 'package.json' (fname)
 
           if ts_root then
             on_dir(ts_root)
+          else
+            on_dir(vim.fn.fnamemodify(fname, ':h'))
           end
         end,
         workspace_required = false,
