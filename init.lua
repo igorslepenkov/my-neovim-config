@@ -428,6 +428,15 @@ require('lazy').setup({
               ['<C-x>'] = actions.select_vertical,
             },
           },
+          layout_config = {
+            preview_cutoff = 1, -- Minimum lines needed to show preview
+            horizontal = {
+              preview_width = 0.5,
+            },
+            vertical = {
+              preview_height = 0.5,
+            },
+          },
         },
         pickers = {
           find_files = {

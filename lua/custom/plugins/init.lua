@@ -73,7 +73,7 @@ return {
 
           vim.keymap.set('n', '<leader>ai', function()
             vim.lsp.buf.code_action {
-              context = { only = { 'source.addMissingImports' } },
+              context = { diagnostics = {}, only = { 'source.addMissingImports' } },
               apply = true,
             }
           end, { desc = 'Auto-add all missing imports' })
@@ -99,7 +99,7 @@ return {
           map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
 
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -122,7 +122,7 @@ return {
             })
           end
 
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf) then
             map('<leader>th', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
             end, '[T]oggle Inlay [H]ints')
@@ -262,6 +262,7 @@ return {
   },
   {
     'olimorris/codecompanion.nvim',
+    version = "17.33.0",
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
@@ -298,8 +299,6 @@ return {
         http = {
           searxng = function()
             local fmt = string.format
-            local log = require 'codecompanion.utils.log'
-
             ---@class CodeCompanion.HTTPAdapter
             return {
               name = 'searxng',
@@ -381,10 +380,10 @@ return {
                     end,
 
                     ---Process the output from the search web tool
-                    ---@param self CodeCompanion.HTTPAdapter
+                    ---@param _ CodeCompanion.HTTPAdapter
                     ---@param data table The data returned from the search
                     ---@return table{status: string, content: string}|nil
-                    callback = function(self, data)
+                    callback = function(_, data)
                       local ok, body = pcall(vim.json.decode, data.body)
 
                       if not ok then
