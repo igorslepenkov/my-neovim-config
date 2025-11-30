@@ -190,6 +190,7 @@ return {
         clangd = {},
         gopls = {},
         sqlls = {},
+        jsonls = {},
         lua_ls = {
           -- cmd = {...},
           -- filetypes = { ...},
