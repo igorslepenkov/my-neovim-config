@@ -746,6 +746,7 @@ require('lazy').setup({
       vim.cmd.hi('@string.escape guifg=' .. palette.muted)
 
       vim.cmd.hi 'DiagnosticUnnecessary guifg=none guibg=none'
+      vim.cmd.hi('DiagnosticUnderlineError guifg=' .. palette.text .. ' guibg=' .. palette.highlight_med)
     end,
   },
 
