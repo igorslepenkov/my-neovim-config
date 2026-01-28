@@ -15,10 +15,10 @@ return {
   {
     'christoomey/vim-tmux-navigator',
     keys = {
-      { '<c-j>',  '<cmd><C-U>TmuxNavigateLeft<cr>' },
-      { '<c-k>',  '<cmd><C-U>TmuxNavigateDown<cr>' },
-      { '<c-l>',  '<cmd><C-U>TmuxNavigateUp<cr>' },
-      { '<c-;>',  '<cmd><C-U>TmuxNavigateRight<cr>' },
+      { '<c-j>', '<cmd><C-U>TmuxNavigateLeft<cr>' },
+      { '<c-k>', '<cmd><C-U>TmuxNavigateDown<cr>' },
+      { '<c-l>', '<cmd><C-U>TmuxNavigateUp<cr>' },
+      { '<c-;>', '<cmd><C-U>TmuxNavigateRight<cr>' },
       { '<c-\\>', '<cmd><C-U>TmuxNavigatePrevious<cr>' },
     },
   },
@@ -33,7 +33,7 @@ return {
     dependencies = 'kevinhwang91/promise-async',
     config = function()
       vim.o.foldcolumn = '1' -- '0' is not bad
-      vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
+      vim.o.foldlevel = 99 -- Using ufo provider need a large value, feel free to decrease the value
       vim.o.foldlevelstart = 99
       vim.o.foldenable = true
 
@@ -50,7 +50,7 @@ return {
       { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
-      { 'j-hui/fidget.nvim',       opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       'hrsh7th/cmp-nvim-lsp',
     },
@@ -229,7 +229,7 @@ return {
       vim.lsp.config('denols', {
         root_dir = function(fname, on_dir)
           local util = require 'lspconfig.util'
-          local ts_root = util.root_pattern 'package.json' (fname)
+          local ts_root = util.root_pattern 'package.json'(fname)
           local deno_root = util.root_pattern('deno.json', 'deno.jsonc')(fname)
 
           if deno_root and not ts_root then
@@ -246,7 +246,7 @@ return {
       vim.lsp.config('ts_ls', {
         root_dir = function(fname, on_dir)
           local util = require('lspconfig').util
-          local ts_root = util.root_pattern 'package.json' (fname)
+          local ts_root = util.root_pattern 'package.json'(fname)
 
           if ts_root then
             on_dir(ts_root)
@@ -261,8 +261,35 @@ return {
     vim.lsp.enable 'ts_ls',
   },
   {
+    'ravitemer/mcphub.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim', -- For async support
+    },
+    build = 'npm install -g mcp-hub@latest', -- Core MCP Hub server
+    config = function()
+      require('mcphub').setup {
+        port = 37373,
+        config = vim.fn.expand '~/.config/mcphub/servers.json',
+        log = {
+          level = vim.log.levels.WARN,
+          to_file = true, -- Logs at ~/.local/state/nvim/mcphub.log
+        },
+        on_ready = function()
+          vim.notify 'MCP Hub is online!'
+        end,
+        make_tools = true, -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
+        show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
+        add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
+        show_result_in_chat = true, -- Show tool results directly in chat buffer
+        format_tool = nil, -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
+        make_vars = true, -- Convert MCP resources to #variables for prompts
+        make_slash_commands = true,
+      }
+    end,
+  },
+  {
     'olimorris/codecompanion.nvim',
-    version = "17.33.0",
+    version = '17.33.0',
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-treesitter/nvim-treesitter',
@@ -434,6 +461,15 @@ return {
                 model = {
                   default = 'deepseek-chat',
                 },
+                servers = {
+                  {
+                    name = 'filesystem',
+                    command = '/home/igor/.nvm/versions/node/v24.5.0/bin/mcp-server-filesystem',
+                    args = {
+                      vim.fn.getcwd(),
+                    },
+                  },
+                },
               },
             })
           end,
@@ -447,6 +483,15 @@ return {
             search_web = {
               opts = {
                 adapter = 'searxng',
+              },
+            },
+            ['mcp'] = {
+              callback = function()
+                return require 'mcphub.extensions.codecompanion'
+              end,
+              opts = {
+                requires_approval = true,
+                temperature = 0.7,
               },
             },
           },
