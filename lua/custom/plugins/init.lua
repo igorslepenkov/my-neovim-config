@@ -582,7 +582,11 @@ The current date is ${date}.
 The user's Neovim version is ${version}.
 The user is working on a ${os} machine. Please respond with system specific commands if applicable.
 
-If granted access to filesystem with mcp server, look for file located in the root of the repository on path /.mcphub/context.md for additional information on repository and project
+If granted access to filesystem with mcp server, look for file located in the root of the repository on path /.mcphub/context.md 
+for additional information on repository and project. 
+If this file is provided it should be the most valuable source of truth about the project internals, any task given to you should be coordinated with this files contents.
+
+Proejcts .env or /env/*.env files should never be read by an AI assistant under any circumstances
             ]],
           },
           adapter = 'deepseek',
