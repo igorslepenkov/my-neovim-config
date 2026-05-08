@@ -261,40 +261,40 @@ return {
 
     vim.lsp.enable 'ts_ls',
   },
-  {
-    'ravitemer/mcphub.nvim',
-    dependencies = {
-      'nvim-lua/plenary.nvim', -- For async support
-    },
-    build = 'npm install -g mcp-hub@latest', -- Core MCP Hub server
-    config = function()
-      require('mcphub').setup {
-        port = 37373,
-        auto_approve = true,
-        config = vim.fn.expand '~/.config/mcphub/servers.json',
-        log = {
-          level = vim.log.levels.WARN,
-          to_file = true, -- Logs at ~/.local/state/nvim/mcphub.log
-        },
-        on_ready = function()
-          vim.notify 'MCP Hub is online!'
-        end,
-        make_tools = true, -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
-        show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
-        add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
-        show_result_in_chat = true, -- Show tool results directly in chat buffer
-        format_tool = nil, -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
-        make_vars = true, -- Convert MCP resources to #variables for prompts
-        make_slash_commands = true,
-      }
-    end,
-  },
+  -- {
+  --   'ravitemer/mcphub.nvim',
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim', -- For async support
+  --   },
+  --   build = 'npm install -g mcp-hub@latest', -- Core MCP Hub server
+  --   config = function()
+  --     require('mcphub').setup {
+  --       port = 37373,
+  --       auto_approve = true,
+  --       config = vim.fn.expand '~/.config/mcphub/servers.json',
+  --       log = {
+  --         level = vim.log.levels.WARN,
+  --         to_file = true, -- Logs at ~/.local/state/nvim/mcphub.log
+  --       },
+  --       on_ready = function()
+  --         vim.notify 'MCP Hub is online!'
+  --       end,
+  --       make_tools = true, -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
+  --       show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
+  --       add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
+  --       show_result_in_chat = true, -- Show tool results directly in chat buffer
+  --       format_tool = nil, -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
+  --       make_vars = true, -- Convert MCP resources to #variables for prompts
+  --       make_slash_commands = true,
+  --     }
+  --   end,
+  -- },
   {
     'olimorris/codecompanion.nvim',
     -- version = '17.33.0',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      'nvim-treesitter/nvim-treesitter',
+      -- 'nvim-treesitter/nvim-treesitter',
     },
     lazy = false,
     keys = {
@@ -582,11 +582,14 @@ The current date is ${date}.
 The user's Neovim version is ${version}.
 The user is working on a ${os} machine. Please respond with system specific commands if applicable.
 
-If granted access to filesystem with mcp server, look for file located in the root of the repository on path /.mcphub/context.md 
+If granted access to filesystem, look for file located in the root of the repository on path /.mcphub/context.md 
 for additional information on repository and project. 
 If this file is provided it should be the most valuable source of truth about the project internals, any task given to you should be coordinated with this files contents.
 
-Proejcts .env or /env/*.env files should never be read by an AI assistant under any circumstances
+Proejcts .env or /env/*.env files should never be read by an AI assistant under any circumstances.
+Before you write any code to any file you should get user's permission to do so. Even if user asks you something like "Can we proceed with implementation?" you should not proceed without direct order!
+Before writing any code analysis phase should take place.
+Any parts that unclear to you about task should be discussed directly with the user.
             ]],
           },
           adapter = 'deepseek',
@@ -609,30 +612,30 @@ Proejcts .env or /env/*.env files should never be read by an AI assistant under 
         },
         inline = { adapter = 'deepseek' },
       },
-      extensions = {
-        mcphub = {
-          callback = 'mcphub.extensions.codecompanion',
-          opts = {
-            port = 37373,
-            auto_approve = true,
-            config = vim.fn.expand '~/.config/mcphub/servers.json',
-            log = {
-              level = vim.log.levels.WARN,
-              to_file = true, -- Logs at ~/.local/state/nvim/mcphub.log
-            },
-            on_ready = function()
-              vim.notify 'MCP Hub is online!'
-            end,
-            make_tools = true, -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
-            show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
-            add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
-            show_result_in_chat = true, -- Show tool results directly in chat buffer
-            format_tool = nil, -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
-            make_vars = true, -- Convert MCP resources to #variables for prompts
-            make_slash_commands = true,
-          },
-        },
-      },
+      -- extensions = {
+      --   mcphub = {
+      --     callback = 'mcphub.extensions.codecompanion',
+      --     opts = {
+      --       port = 37373,
+      --       auto_approve = true,
+      --       config = vim.fn.expand '~/.config/mcphub/servers.json',
+      --       log = {
+      --         level = vim.log.levels.WARN,
+      --         to_file = true, -- Logs at ~/.local/state/nvim/mcphub.log
+      --       },
+      --       on_ready = function()
+      --         vim.notify 'MCP Hub is online!'
+      --       end,
+      --       make_tools = true, -- Make individual tools (@server__tool) and server groups (@server) from MCP servers
+      --       show_server_tools_in_chat = true, -- Show individual tools in chat completion (when make_tools=true)
+      --       add_mcp_prefix_to_tool_names = false, -- Add mcp__ prefix (e.g `@mcp__github`, `@mcp__neovim__list_issues`)
+      --       show_result_in_chat = true, -- Show tool results directly in chat buffer
+      --       format_tool = nil, -- function(tool_name:string, tool: CodeCompanion.Agent.Tool) : string Function to format tool names to show in the chat buffer
+      --       make_vars = true, -- Convert MCP resources to #variables for prompts
+      --       make_slash_commands = true,
+      --     },
+      --   },
+      -- },
     },
   },
 }

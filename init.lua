@@ -176,8 +176,7 @@ vim.wo.wrap = false
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
-vim.api.nvim_set_keymap('n', '<leader>yf', ':<C-u>let @+ = expand("%:p")<CR>',
-  { noremap = true, silent = true, desc = 'Copy full file path' })
+vim.api.nvim_set_keymap('n', '<leader>yf', ':<C-u>let @+ = expand("%:p")<CR>', { noremap = true, silent = true, desc = 'Copy full file path' })
 
 -- Remap basic keys match home row
 vim.keymap.set({ 'n', 'v' }, 'h', '')
@@ -223,7 +222,7 @@ vim.keymap.set('v', '<C-z>', '<cmd>echo "Use :q to exit"<cr>')
 --  Use CTRL+<hjkl> to switch between windows
 --
 --  See `:help wincmd` for a list of all window commands
-vim.keymap.set('n', '<leader>j', '<C-w>h', { desc = 'Move focus to the left window' })  -- j → left
+vim.keymap.set('n', '<leader>j', '<C-w>h', { desc = 'Move focus to the left window' }) -- j → left
 vim.keymap.set('n', '<leader>k', '<C-w>j', { desc = 'Move focus to the lower window' }) -- k → down
 vim.keymap.set('n', '<leader>l', '<C-w>k', { desc = 'Move focus to the upper window' }) -- l → up
 vim.keymap.set('n', '<leader>;', '<C-w>l', { desc = 'Move focus to the right window' }) -- ; → right
@@ -309,7 +308,7 @@ require('lazy').setup({
   -- after the plugin has been loaded:
   --  config = function() ... end
 
-  {                     -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -352,7 +351,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -392,7 +391,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -459,11 +458,9 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
       vim.keymap.set('n', '<leader>sk', builtin.keymaps, { desc = '[S]earch [K]eymaps' })
       vim.keymap.set('n', '<leader>sf', function()
-        builtin.find_files(
-          {
-            previewer = true
-          }
-        )
+        builtin.find_files {
+          previewer = true,
+        }
       end, { desc = '[S]earch [F]iles' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
@@ -524,7 +521,7 @@ require('lazy').setup({
       },
     },
   },
-  { 'Bilal2453/luvit-meta',     lazy = true },
+  { 'Bilal2453/luvit-meta', lazy = true },
   { -- Autoformat
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
@@ -620,8 +617,8 @@ require('lazy').setup({
       --  into multiple repos for maintenance purposes.
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
-      'mattn/emmet-vim',
-      'dcampos/cmp-emmet-vim',
+      -- 'mattn/emmet-vim',
+      -- 'dcampos/cmp-emmet-vim',
     },
     config = function()
       -- See `:help cmp`
@@ -792,139 +789,150 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
-  { -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    dependencies = {
-      'nvim-treesitter/nvim-treesitter-textobjects',
-    },
-    build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    config = function()
-      vim.g.emmet_filetypes = {
-        'html',
-        'css',
-        'typescriptreact',
-        'javascriptreact',
-        'templ',
-      }
-    end,
-    opts = {
-      ensure_installed = {
-        'bash',
-        'c',
-        'diff',
-        'html',
-        'lua',
-        'luadoc',
-        'markdown',
-        'markdown_inline',
-        'query',
-        'vim',
-        'vimdoc',
-        'typescript',
-        'typescriptreact',
-        'rust',
-      },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = false,
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-      textobjects = {
-        move = {
-          enable = true,
-          set_jumps = true, -- whether to set jumps in the jumplist
-          goto_next_start = {
-            [']a'] = { query = '@parameter.inner', desc = 'Next argument start' },
-            [']m'] = { query = '@function.outer', desc = 'Next function start' },
-            [']]'] = { query = '@class.outer', desc = 'Next class start' },
-            [']o'] = { query = '@loop.outer', desc = 'Next loop' },
-            [']s'] = { query = '@local.scope', query_group = 'locals', desc = 'Next scope' },
-            [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
-          },
-          goto_next_end = {
-            [']M'] = '@function.outer',
-            [']['] = '@class.outer',
-            [']A'] = { query = '@parameter.outer', desc = 'Next argument end' },
-          },
-          goto_previous_start = {
-            ['[a'] = { query = '@parameter.inner', desc = 'Previous argument start' },
-            ['[m'] = '@function.outer',
-            ['[['] = '@class.outer',
-          },
-          goto_previous_end = {
-            ['[M'] = '@function.outer',
-            ['[]'] = '@class.outer',
-            ['[A'] = { query = '@parameter.outer', desc = 'Previous argument end' },
-          },
-          goto_next = {
-            [']d'] = '@conditional.outer',
-          },
-          goto_previous = {
-            ['[d'] = '@conditional.outer',
-          },
-        },
-        select = {
-          enable = true,
-
-          -- Automatically jump forward to textobj, similar to targets.vim
-          lookahead = true,
-
-          keymaps = {
-            -- You can use the capture groups defined in textobjects.scm
-            ['af'] = '@function.outer',
-            ['if'] = '@function.inner',
-            ['ac'] = '@class.outer',
-            -- You can optionally set descriptions to the mappings (used in the desc parameter of
-            -- nvim_buf_set_keymap) which plugins like which-key display
-            ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
-            -- You can also use captures from other query groups like `locals.scm`
-            ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
-          },
-          -- You can choose the select mode (default is charwise 'v')
-          --
-          -- Can also be a function which gets passed a table with the keys
-          -- * query_string: eg '@function.inner'
-          -- * method: eg 'v' or 'o'
-          -- and should return the mode ('v', 'V', or '<c-v>') or a table
-          -- mapping query_strings to modes.
-          selection_modes = {
-            ['@parameter.outer'] = 'v', -- charwise
-            ['@function.outer'] = 'V',  -- linewise
-            ['@class.outer'] = '<c-v>', -- blockwise
-          },
-          -- If you set this to `true` (default is `false`) then any textobject is
-          -- extended to include preceding or succeeding whitespace. Succeeding
-          -- whitespace has priority in order to act similarly to eg the built-in
-          -- `ap`.
-          --
-          -- Can also be a function which gets passed a table with the keys
-          -- * query_string: eg '@function.inner'
-          -- * selection_mode: eg 'v'
-          -- and should return true or false
-          include_surrounding_whitespace = true,
-        },
-      },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-  },
-  {
-    'nvim-treesitter/nvim-treesitter-context',
-    opts = {
-      max_lines = 5,
-    },
-  },
+  -- { -- Highlight, edit, and navigate code
+  --   'nvim-treesitter/nvim-treesitter',
+  --   dependencies = {
+  --     'nvim-treesitter/nvim-treesitter-textobjects',
+  --   },
+  --   build = ':TSUpdate',
+  --   main = 'nvim-treesitter.configs', -- Sets main module to use for opts
+  --   -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
+  --   config = function()
+  --     vim.g.emmet_filetypes = {
+  --       'html',
+  --       'css',
+  --       'typescriptreact',
+  --       'javascriptreact',
+  --       'templ',
+  --     }
+  --   end,
+  --   opts = {
+  --     ensure_installed = {
+  --       'bash',
+  --       'c',
+  --       'diff',
+  --       'html',
+  --       'lua',
+  --       'luadoc',
+  --       'markdown',
+  --       'markdown_inline',
+  --       'query',
+  --       'vim',
+  --       'vimdoc',
+  --       'typescript',
+  --       'typescriptreact',
+  --       'rust',
+  --     },
+  --     -- Autoinstall languages that are not installed
+  --     auto_install = true,
+  --     highlight = {
+  --       enable = true,
+  --       -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
+  --       --  If you are experiencing weird indenting issues, add the language to
+  --       --  the list of additional_vim_regex_highlighting and disabled languages for indent.
+  --       additional_vim_regex_highlighting = false,
+  --     },
+  --     indent = { enable = true, disable = { 'ruby' } },
+  --     textobjects = {
+  --       move = {
+  --         enable = true,
+  --         set_jumps = true, -- whether to set jumps in the jumplist
+  --         goto_next_start = {
+  --           [']a'] = { query = '@parameter.inner', desc = 'Next argument start' },
+  --           [']m'] = { query = '@function.outer', desc = 'Next function start' },
+  --           [']]'] = { query = '@class.outer', desc = 'Next class start' },
+  --           [']o'] = { query = '@loop.outer', desc = 'Next loop' },
+  --           [']s'] = { query = '@local.scope', query_group = 'locals', desc = 'Next scope' },
+  --           [']z'] = { query = '@fold', query_group = 'folds', desc = 'Next fold' },
+  --         },
+  --         goto_next_end = {
+  --           [']M'] = '@function.outer',
+  --           [']['] = '@class.outer',
+  --           [']A'] = { query = '@parameter.outer', desc = 'Next argument end' },
+  --         },
+  --         goto_previous_start = {
+  --           ['[a'] = { query = '@parameter.inner', desc = 'Previous argument start' },
+  --           ['[m'] = '@function.outer',
+  --           ['[['] = '@class.outer',
+  --         },
+  --         goto_previous_end = {
+  --           ['[M'] = '@function.outer',
+  --           ['[]'] = '@class.outer',
+  --           ['[A'] = { query = '@parameter.outer', desc = 'Previous argument end' },
+  --         },
+  --         goto_next = {
+  --           [']d'] = '@conditional.outer',
+  --         },
+  --         goto_previous = {
+  --           ['[d'] = '@conditional.outer',
+  --         },
+  --       },
+  --       select = {
+  --         enable = true,
+  --
+  --         -- Automatically jump forward to textobj, similar to targets.vim
+  --         lookahead = true,
+  --
+  --         keymaps = {
+  --           -- You can use the capture groups defined in textobjects.scm
+  --           ['af'] = '@function.outer',
+  --           ['if'] = '@function.inner',
+  --           ['ac'] = '@class.outer',
+  --           -- You can optionally set descriptions to the mappings (used in the desc parameter of
+  --           -- nvim_buf_set_keymap) which plugins like which-key display
+  --           ['ic'] = { query = '@class.inner', desc = 'Select inner part of a class region' },
+  --           -- You can also use captures from other query groups like `locals.scm`
+  --           ['as'] = { query = '@local.scope', query_group = 'locals', desc = 'Select language scope' },
+  --         },
+  --         -- You can choose the select mode (default is charwise 'v')
+  --         --
+  --         -- Can also be a function which gets passed a table with the keys
+  --         -- * query_string: eg '@function.inner'
+  --         -- * method: eg 'v' or 'o'
+  --         -- and should return the mode ('v', 'V', or '<c-v>') or a table
+  --         -- mapping query_strings to modes.
+  --         selection_modes = {
+  --           ['@parameter.outer'] = 'v', -- charwise
+  --           ['@function.outer'] = 'V', -- linewise
+  --           ['@class.outer'] = '<c-v>', -- blockwise
+  --         },
+  --         -- If you set this to `true` (default is `false`) then any textobject is
+  --         -- extended to include preceding or succeeding whitespace. Succeeding
+  --         -- whitespace has priority in order to act similarly to eg the built-in
+  --         -- `ap`.
+  --         --
+  --         -- Can also be a function which gets passed a table with the keys
+  --         -- * query_string: eg '@function.inner'
+  --         -- * selection_mode: eg 'v'
+  --         -- and should return true or false
+  --         include_surrounding_whitespace = true,
+  --       },
+  --     },
+  --   },
+  --   -- There are additional nvim-treesitter modules that you can use to interact
+  --   -- with nvim-treesitter. You should go explore a few and see what interests you:
+  --   --
+  --   --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
+  --   --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
+  --   --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+  -- },
+  -- {
+  --   'nvim-treesitter/nvim-treesitter-context',
+  --   opts = {
+  --     max_lines = 5,
+  --   },
+  --   config = function(_, opts)
+  --     require('treesitter-context').setup(opts)
+  --     vim.api.nvim_create_autocmd('FileType', {
+  --       pattern = 'markdown',
+  --       desc = 'Disable treesitter context in markdown files',
+  --       group = vim.api.nvim_create_augroup('treesitter-context-md', { clear = true }),
+  --       callback = function()
+  --         vim.cmd 'TSContext disable'
+  --       end,
+  --     })
+  --   end,
+  -- },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
@@ -997,13 +1005,13 @@ vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, {
 })
 
 -- To prioritize tree-sitter highlights in TS
-vim.api.nvim_create_autocmd('FileType', {
-  pattern = 'typescript',
-  callback = function()
-    vim.bo.syntax = ''
-    vim.cmd 'TSBufEnable highlight'
-  end,
-})
+-- vim.api.nvim_create_autocmd('FileType', {
+--   pattern = 'typescript',
+--   callback = function()
+--     vim.bo.syntax = ''
+--     vim.cmd 'TSBufEnable highlight'
+--   end,
+-- })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 --vim: ts=2 sts=2 sw=2 et
